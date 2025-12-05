@@ -60,8 +60,7 @@ quarto --version
 tlmgr --version
 ```
 
-4. If Tex Live has already been installed on your machine, update it. Tex Live
-  - In a terminal, run the following to  update `tlmgr` and to update all LaTeX packages:
+4. If Tex Live has already been installed on your machine, update it. In a terminal, run the following to  update `tlmgr` and to update all LaTeX packages:
   
 ```{.Powershell}
 tlmgr update --self --all
@@ -99,7 +98,7 @@ In the next section, we’ll look at look at examples of specific extensions tha
 
 ## Critic Markup
 
-The Critic Markup offers specialized, Markdown-based syntax to denote edits and revisions when submitting report drafts for review by internal agency stakeholders. The syntax is quick and easy to add and remove from the document. This section shows the Critic Markup syntax verbatim, alongside rendered examples.
+The Critic Markup extension offers specialized, Markdown-based syntax to denote edits and revisions when submitting report drafts for review by internal agency stakeholders. The syntax is quick and easy to add and remove from the document. This section shows the Critic Markup syntax verbatim, alongside rendered examples.
 
 ::: {.callout-note}
 ### Tip
@@ -140,7 +139,7 @@ Quarto may also be extended to include the ability to add scalable, vector-based
 
 ::: {.callout-note}
 ### Tip
-Currently, the Font Awesome extension is configured to work with Font Awesome 5 free icons only, Pandoc scans for both Font Awesome 5 and 6, resulting in failure to compile via LaTeX, since the extension currently uses Font Awesome 6 icons exclusively in HTML output. Issues in the repository indicate that the developers plan to add LaTeX support for Font Awesome 6 and 7 libraries. We can fork the repo to ensure that we are aware of updates as they are merged with the main branch. In the meantime, the `fontawesome.lua` has been modified to force it to work with FA5. When LaTeX support for FA6 is available, this will need to be updated.
+Currently, the Font Awesome extension is configured to work with Font Awesome 5 free icons only when compiling to PDF and to otherwise use Font Awesome 6 icons when compiling to HTML. However, because Pandoc scans for both Font Awesome 5 and 6, the result is that compiling to PDF fails unless the extension is modified to force using FA 5 exclusively. I have modified the `fontawesome.lua` file to do this. Issues in the repository indicate that the developers plan to add LaTeX support for Font Awesome 6 and 7 libraries in the future. We can fork the repo to ensure that we are aware of updates as they are merged with the main branch.
 :::
 
 As this section will demonstrate, FA icons are easy to customize.
@@ -268,7 +267,7 @@ Last, it is possible to create lists with icons in place of bullets:
 
 ## Bootstrap Icons
 
-Bootstrap Icons (bsicons) are another free, open-source library of icons designed to be scalable and easy to style ... in HTML. Since these are saved as SVG icons, styling in LaTeX is much more challenging than with Font Awesome icons. It just isn't worth our time and effort to customize bsicons with different colors, so these icons will only render in black. However, they are easy to insert into Quarto documents and will compile to PDF now that I have customized the `Lua` script, so it may be worth perusing the library to see if there are icons that would be a good complement to the Font Awesome 5 library.
+Another free, open-source library of icons is Bootstrap Icons (bsicons). Bootstrap Icons are  designed to be scalable and easy to style ... in HTML. Since these are saved as SVG icons, styling in LaTeX is much more challenging than with Font Awesome icons. It just isn't worth our time and effort to customize bsicons with different colors, so these icons will only render in black. However, they are easy to insert into Quarto documents and will compile to PDF now that I have customized the `Lua` script, so it may be worth perusing the library to see if there are icons that would be a good complement to the Font Awesome 5 library.
 
 ### Basic Syntax
 
