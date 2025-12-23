@@ -127,6 +127,7 @@ In both R Markdown and Quarto, chunk options can be set globally (applied to all
 #### Global R Markdown
 
 ::: {.callout-tip #global-rmd-r-setup-callout}
+# Global R Markdown Chunk Options in Setup Chunk
 ````md
 \```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
@@ -137,6 +138,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 #### Global Quarto
 
 ::: {.callout-tip #global-qmd-r-setup-callout}
+# Global Quarto Chunk Options in Setup Chunk
 ````md
 \```{r setup}
 #| include: false
@@ -148,6 +150,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 #### Local R Markdown
 
 ::: {.callout-tip #local-rmd-r-setup-callout}
+# Local R Markdown Chunk Options
 ````md
 \```{r summary, echo=TRUE}
 summary(mtcars)
@@ -158,6 +161,7 @@ summary(mtcars)
 #### Local Quarto
 
 ::: {.callout-tip #local-qmd-r-setup-callout}
+# Local Quarto Chunk Options
 ````md
 \```{r summary}
 #| echo: true
@@ -168,7 +172,7 @@ summary(mtcars)
 
 ## Callout Blocks in Quarto
 
-Quarto supports several types of callout blocks to highlight information. These are built‑in and require no extensions.
+Quarto supports several types of callout blocks to highlight information. These are built‑in and require no extensions. Callouts can contain text, code blocks, tables, or inline icons. However, note that callouts should be used for *concise* highlights. Do not place long lines of code in callout boxes because they do not break across pages by default.
 
 ### Basic Syntax
 
@@ -253,12 +257,27 @@ This is an important callout.
 This is an important callout.
 :::
 
-Overall, note that callouts should be used for concise highlights. Do not place long lines of code in callout boxes because they do not break across pages by default.
+#### Overriding Titles
+
+Titles can be added with a `title="..."` attribute to override the heading.
+
+````md
+::: {.callout-important title="Critical Deadline"}
+This callout uses a custom title instead of the default “Important.”
+:::
+````
+
+::: {.callout-important title="Critical Deadline"}
+This callout uses a custom title instead of the default “Important.”
+:::
+
+### Cross-Referencing Callouts
+
+To cross-reference a callout, add an ID attribute starting with the appropriate callout prefix. This allows one to reference a callout using the usual @ syntax.
 
 ````md
 ::: {#tip-cross-reference-example .callout-tip}
-## Cross-Referencing a Tip
-
+# Cross-Reference Guidance
 Add an ID starting with `#tip-` to reference a tip.
 :::
 
@@ -268,12 +287,14 @@ See @tip-cross-reference-example...
 This renders as:
 
 ::: {#tip-cross-reference-example .callout-tip}
-## Cross-Referencing a Tip
+# Cross-Reference Guidance
 
 Add an ID starting with `#tip-` to reference a tip.
 :::
 
 See @tip-cross-reference-example...
+
+#### Callout Prefixes
 
 Each callout type has a specific prefix for this purpose.
 
@@ -284,17 +305,6 @@ Each callout type has a specific prefix for this purpose.
 | warning      | #wrn-  |
 | important    | #imp-  |
 | caution      | #cau-  |
-
-
-### Cross-Referencing Callouts
-
-To cross-reference a callout, add an ID attribute starting with the appropriate callout prefix. This allows one to reference a callout using the usual @ syntax.
-
-### Customization
-
-- Titles can be added with an `title="..."` attribute to override the heading.
-- Callouts can contain text, code blocks, tables, or inline icons.
-- Icons and colors vary by type. 
 
 ### Callout Appearance Styles
 
@@ -358,7 +368,7 @@ format:
 ````
 ### Icons in Callouts
 
-By default, callouts include an icon. You can disable icons globally or locally.
+By default, callouts include an icon, which vary by callout type. You can disable icons globally or locally.
 
 #### Local (Per Callout)
 
@@ -389,11 +399,10 @@ format:
 
 Callouts can be enhanced with icons for emphasis. For example, you may insert Font Awesome icons inline to visually distinguish tips, warnings, or highlights. See the [Font Awesome section](#font-awesome) later in this guide for detailed instructions on customizing icons (color, size, alignment) in both PDF and HTML outputs.
 
-## Package Compatibility Notes
+## Package Compatibility Notes [to be moved elsewhere]
 
 ### **Bookdown Features**
 
-  - Quarto subsumes bookdown features by natively supporting multi-file books, cross-references, citations, and output formats without requiring the bookdown package.
   - Quarto projects use a unified YAML project file (`_quarto.yml`) to define book structure, replacing bookdown's `_bookdown.yml`.
   - Quarto supports child documents and parameterized reports similarly to bookdown but with enhanced syntax and cross-language support.
   - Quarto's native support for extensions and filters replaces many bookdown-specific features, providing more flexibility and maintainability.
@@ -403,9 +412,72 @@ Callouts can be enhanced with icons for emphasis. For example, you may insert Fo
 
 ## Project Structures
 
+Quarto natively supports both single-file projects and book or multi-file projects, which means that the R Markdown and bookdown packages are not required dependencies. For single-file documents, a separate `index.qmd` is not required. Everything (`YAML` + content) is placed in one `.qmd` file. That file may be named anything (`report.qmd`, `narrative.qmd`, etc.). Conventionally, multi-file projects do still place the `YAML` front matter (and sometimes introductory content) into an `index.qmd`, while other `.qmd` files hold chapters/sections.
+
+### Single-File Projects
+
+A minimal working Quarto example follows:
+
+````yaml
+---
+title: "EPICC MIMH Report"
+author: "Data Team"
+date: "2025-06-30"
+
+# Parameters for reproducibility
+params:
+  start_date: !expr lubridate::ymd("2025-04-01")
+  end_date: !expr lubridate::ymd("2025-06-30")
+  hospital_system: "SSM"
+
+# Output formats
+format:
+  pdf:
+    include-in-header: preface.tex   # inject custom LaTeX preamble
+    geometry: "left=1.25cm, right=1.25cm, top=1.25cm, bottom=1.25cm"
+  docx: default                      # also render to Word
+
+# Optional site/book metadata (not needed for single-file reports)
+site: none
+---
+````
+
+```md
+## Referrals and Outreaches
+```
+````{r, eval=FALSE}
+```{r}
+#| label: refs
+#| eval: FALSE
+
+# Create a frequency tabyl of referrals by referral source for
+# epicc_dataset_fy_to_date.
+epicc_tbl_refs_fy_to_date <- epicc_dataset_fy_to_date %>% 
+  select(
+    referring_agency
+  ) %>% 
+  tabyl(
+    referring_agency
+    ) %>% 
+  adorn_totals(
+    "row"
+  ) %>% 
+  rename(
+    fytd_referrals = n
+  ) %>% 
+  select(
+    -percent
+  )
+```
+````
+
+### Multi-File Book Projects (e.g., YERE)
+
+Quarto subsumes bookdown features by natively supporting multi-file books, cross-references, citations, and output formats without requiring the bookdown package.
+
 ### Parent/Child Document Model
 
-- Quarto supports `include:` and `import:` directives, which means that our child ETL documents may still be source.
+- Quarto supports `child:` and `file:` directives, which means that our child documents may still be sourced in the same way we did using R Markdown and bookdown.
 
 ### Parameters for Quarterly vs Annual Reports
 
@@ -413,8 +485,6 @@ Callouts can be enhanced with icons for emphasis. For example, you may insert Fo
 
 #### Project Configuration File
 
-::: {.callout-tip #yml-file-pattern-callout title="`_quarto.yml`"}
-````md
 ```yaml
 project:
   type: book
@@ -425,13 +495,9 @@ book:
     - index.qmd
     - 01-YERE-Program-Periodic-Report.qmd
 ```
-````
-:::
 
 #### Front Matter and Setup
 
-::: {.callout-tip #index-rmd-pattern-callout title="`index.Qmd`"}
-````md
 ```yaml
 ---
 title: "YERE Program Report"
@@ -442,14 +508,12 @@ params:
   hospital_system: "SSM"
 ---
 ```
-````
-:::
 
 #### R Setup Chunk
 
-::: {.callout-tip #yere-r-setup-example-pattern-callout title="R Set Up Chunk"}
-````md
-```{r r-setup}
+````{r, eval=FALSE}
+```{r}
+#| label: r-setup
 #| include: FALSE
 #| eval: FALSE
 
@@ -470,11 +534,9 @@ eval_general <- TRUE
 fiscal_period <- ifelse(report_type == "Quarterly", "quarters", "years")
 ```
 ````
-:::
 
 #### Parent File
 
-::: {.callout-tip #yere-parent-file-example-pattern-callout title="01-YERE-Program-Periodic-Report.qmd"}
 ```md
 # YERE Program Report
 ```
@@ -491,10 +553,6 @@ fiscal_period <- ifelse(report_type == "Quarterly", "quarters", "years")
 #| eval: eval_annual
 ```
 ````
-:::
-
-
-### Multi-File Book Projects (e.g., YERE)
 
 ### Example YAML Setups
 
@@ -509,21 +567,23 @@ We have used the kableExtra package to format tables in our report projects beca
 | Basic table           | `kable(df)`                                    | `flextable(df)`                            |
 | Add header row        | `add_header_above()`                           | `add_header_row()`                         |
 | Bold header row       | `row_spec(0, bold=TRUE)`                       | `bold(part="header")`                      |
-| Last row styling      | `row_spec(nrow, bold=TRUE, bg="#2c7fb8")`      | `bg(i=nrow, bg="#2c7fb8"); color(i=nrow, color="white")`                      |
+| Last row styling      | `row_spec(nrow, bold=TRUE,`                    | `bg(i=nrow, bg="#2c7fb8")`                 |
+|                       |   `bg="#2c7fb8")`                              | `; color(i=nrow, color="white")`           |
 | Group cells           | `collapse_rows(columns=1)`                     | `merge_v(j=1)`                             |
-| Style header          | `kable_styling(latex_options="striped")`       | `theme_vanilla()` or `bold(part="header")` |
+| Style header          | `kable_styling(`                               | `theme_vanilla()`                          |
+|                       | `latex_options="striped")`                     | or `bold(part="header")`                   |
 | Cell background color | `cell_spec(..., background="lightblue")`       | `bg(i=1, j=1, bg="lightblue")`             |
 | Column width          | `column_spec(2, width="5cm")`                  | `width(j=2, width=2)`                      |
 | Footnotes             | `footnote(general="Note...")`                  | `add_footer_lines("Note...")`              |
 | Alignment             | `align="c"` in `kable()`                       | `align(j=2, align="center")`               |
-| Caption               | `caption=` in `kable()`                        | `flextable::set_caption()`               |
+| Caption               | `caption=` in `kable()`                        | `flextable::set_caption()`                 |
 
 ### Conditional Routing Example
 
 Because kableExtra and flextable are used to format and style tables, the data preparation steps may remain the same. Once data has been transformed for use in a table and assigned to a tibble, we would then pass the object to a function that 
 
 ````{r, eval=FALSE}
-```r
+```{r}
 df <- data.frame(
   Name = c("Alice", "Bob"),
   Score = c(95, 88)
@@ -559,10 +619,11 @@ if (knitr::is_latex_output()) {
 An illustration of code that might be adopted to conditionally pipe tables requiring nested headers follows:
 
 ````{r, eval=FALSE}
-```{r make-nested-header-table-template}
-#| echo: false
-#| warning: false
-#| eval: false
+```{r}
+#| label: make-nested-header-table-template
+#| echo: FALSE
+#| warning: FALSE
+#| eval: FALSE
 
 make_nested_header_table <- function(df, col_labels, caption_text) {
   if (knitr::is_latex_output()) {
@@ -576,19 +637,36 @@ make_nested_header_table <- function(df, col_labels, caption_text) {
         col.names = linebreak(col_labels, align = "c"),
         align = c("l", rep("c", ncol(df) - 1))
       ) %>%
-      collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
-      kableExtra::kable_styling(latex_options = c("HOLD_position", "scale_down")) %>%
+      collapse_rows(
+        columns = 1, latex_hline = "major", valign = "middle"
+        ) %>%
+      kableExtra::kable_styling(
+        latex_options = c("HOLD_position", "scale_down")
+        ) %>%
       row_spec(0, bold = TRUE) %>%
-      row_spec(nrow(df), bold = TRUE, color = "white", background = "#2c7fb8") %>%
+      row_spec(
+        nrow(df), bold = TRUE, color = "white", background = "#2c7fb8"
+        ) %>%
       add_header_above(
-        c(" " = 2, "Two Week" = 2, "Thirty Day" = 2, "Three Month" = 2, "Six Month" = 2),
+        c(
+          " " = 2,
+          "Two Week" = 2,
+          "Thirty Day" = 2,
+          "Three Month" = 2,
+          "Six Month" = 2),
         bold = TRUE
       )
   } else if (knitr::is_word_output()) {
     flextable::flextable(df) %>%
       flextable::set_header_labels(.labels = col_labels) %>%
       flextable::add_header_row(
-        values = c("", "Two Week", "Thirty Day", "Three Month", "Six Month"),
+        values = c(
+          "",
+          "Two Week",
+          "Thirty Day",
+          "Three Month",
+          "Six Month"
+          ),
         colwidths = c(2, 2, 2, 2, 2)
       ) %>%
       flextable::bold(part = "header") %>%
@@ -604,12 +682,12 @@ make_nested_header_table <- function(df, col_labels, caption_text) {
 
 The code to use this in a program report chunk:
 
-::: {.callout-tip #nested-header-table-application-pattern-callout}
 ````{r, eval=FALSE}
-```{r make-nested-header-table-application}
-#| echo: false
-#| warning: false
-#| eval: false
+```{r}
+#| label: make-nested-header-table-application
+#| echo: FALSE
+#| warning: FALSE
+#| eval: FALSE
 
 make_nested_header_table(
   epicc_tbl_agency_eligible_part_three_fps,
@@ -621,7 +699,6 @@ make_nested_header_table(
   )
 ```
 ````
-:::
 
 ## Output Formats
 
