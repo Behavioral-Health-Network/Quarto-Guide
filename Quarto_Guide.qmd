@@ -106,11 +106,12 @@ Quarto moves chunk options out of the header and into the body of the chunk usin
 | Hide messages           | ````{r, message=FALSE}````       | #\| message: false          |
 | Hide results            | ````{r, results="hide"}````      | #\| results: hide           |
 | Do not run code         | ````{r, eval=FALSE}````          | #\| eval: false             |
+| Source Child Doc        | ````{r, child="insert path"}```` | #\| child: "insert path"    |
 | Run but don’t include   | ````{r, include=FALSE}````       | #\| include: false          |
 | Set fig width/height    | ````{r, fig.width=6,````         | #\| fig-width: 6            |
 |                         |     ````fig.height=4}````        | #\| fig-height: 4           |
 | Cache results           | ````{r, cache=TRUE}````          | #\| cache: true             |
-| Chunk label             | ````{r my-chunk}````             | ````{r my-chunk}```` (same) |
+| Chunk label             | ````{r my-chunk}````             | #\| label: my-chunk         |
 | Parameters              | `params$start_date`              | `params.start_date`         |
 
 ### Global vs Local Chunk Options
