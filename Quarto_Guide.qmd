@@ -33,9 +33,9 @@ In contrast to `R Markdown`, which used R-specific chunk options (e.g., `echo = 
 
 Beyond its built‑in features, Quarto supports **extensions** — modular add‑ons that contribute filters, themes, and tools for specialized tasks. Extensions make it easy to incorporate functionality such as icon sets, diagramming filters, or markup processors without writing custom code. They are installed at the project level, which keeps them version‑controlled alongside your source files and ensures that collaborators can render documents consistently. The guide to installation will overview how to install extensions after discussing how to install the Quarto software.
 
-## Installing Quarto
+## Installing and Verifying Quarto
 
-1. Install Quarto
+1. **Install Quarto**
   - Go to [Getting Started With Quarto](https://quarto.org/docs/get-started/ "Quarto Download").
   - Download the installer for Windows.
   - Open a terminal to verify installation:
@@ -49,8 +49,9 @@ Beyond its built‑in features, Quarto supports **extensions** — modular add�
 quarto --version
 ```
   
-2. Install RStudio and VS Code (if they are not already installed on your machine).
-3. Install the latest yearly release of TeX Live *or proceed to Step 4 if Tex Live is already installed*.
+2. **Install RStudio and VS Code** (if they are not already installed on your machine).
+3. **Install TeX Live**
+  - Install the latest yearly release of TeX Live *or proceed to Step 4 if Tex Live is already installed*.
   - Please note that TeX Live is updated yearly, which requires full installation as each new release drops. The reason for this annual release schedule is to create a reliable and stable baseline for users with package updates synchronized with the core software updates.
   - Download [TeX Live](https://tug.org/texlive/ "TeX Live Download").
   - During install, ensure `tlmgr` (TeX Live Manager) is included.
@@ -60,13 +61,18 @@ quarto --version
 tlmgr --version
 ```
 
-4. If Tex Live has already been installed on your machine, update it. In a terminal, run the following to  update `tlmgr` and to update all LaTeX packages:
+4. **Update TeX Live**
+  - If Tex Live has already been installed on your machine, update it. In a terminal, run the following to  update `tlmgr` and to update all LaTeX packages:
   
 ```{.Powershell}
 tlmgr update --self --all
 ```
 
-5. Install Quarto Extensions
+5. **Verify PATH Setup**
+  - Confirm `quarto --version`, `R --version`, and `python --version` all work in your terminal.
+  - If any command fails, it means the software is not registered on your PATH. Re‑run the installer or update your PATH environment variable so the executables are discoverable. Guidance on how to do this can be available.
+
+6. **Install Quarto Extensions**
   - Quarto Extensions are managed locally at the project level, so it will be necessary to add relevant extensions to each Quarto project folder rather than relying on a global installation. The reason for this is the need to ensure **reproducibility** and **portability** when projects are under version control. Bundling extensions with the project allows other users to confidently fork and clone projects without fear that they will not compile because the user lacks the specific version of the extension source code used as the project was developed (and maintained).
   - Therefore, projects may already have an `_extensions` folder with the required files. In that case, it may not be necessary to install extensions.
   - Adding new extensions to a project requires opening a terminal.
@@ -85,23 +91,562 @@ quarto install repo-owner/repo-name
   
   - This will automatically create an `_extensions` folder if one does not already exist. Extensions are installed into a `quarto-ext/` folder at the project root. Quarto creates this folder automatically if it doesn't exist. In certain cases, a repository's `README.md` will instruct you to use `add` instead of `install`. Both will work, but `install` is the current convention because it clearly indicates that the operation is installing an extension.
 
-::: {.callout-note}
-### Tip
-After installation, confirm that `quarto --version`, `R --version`, and `python --version` work in your terminal. If any command fails, it means the software is not registered on your PATH. Re‑run the installer or update your PATH environment variable so the executables are discoverable. Guidance on how to do this can be available.
+---
+
+## Chunk Options Cross-walk
+
+### Chunk Options in R Markdown and Quarto Documents
+
+Quarto moves chunk options out of the header and into the body of the chunk using YAML‑style comments (#|). This design makes options more consistent across languages and easier to read, especially when chunks get complex. The chunk label itself is unchanged, but execution and visibility options (eval, echo, include) are now written line‑by‑line inside the chunk.
+
+| Purpose                 | R Markdown Syntax (chunk header) | Quarto Syntax (inside chunk)|
+|-------------------------|----------------------------------|-----------------------------|
+| Suppress code echo      | ````{r, echo=FALSE}````          | #\| echo: false             |
+| Hide warnings           | ````{r, warning=FALSE}````       | #\| warning: false          |
+| Hide messages           | ````{r, message=FALSE}````       | #\| message: false          |
+| Hide results            | ````{r, results="hide"}````      | #\| results: hide           |
+| Do not run code         | ````{r, eval=FALSE}````          | #\| eval: false             |
+| Run but don’t include   | ````{r, include=FALSE}````       | #\| include: false          |
+| Set fig width/height    | ````{r, fig.width=6,````         | #\| fig-width: 6            |
+|                         |     ````fig.height=4}````        | #\| fig-height: 4           |
+| Cache results           | ````{r, cache=TRUE}````          | #\| cache: true             |
+| Chunk label             | ````{r my-chunk}````             | ````{r my-chunk}```` (same) |
+| Parameters              | `params$start_date`              | `params.start_date`         |
+
+### Global vs Local Chunk Options
+
+In both R Markdown and Quarto, chunk options can be set globally (applied to all chunks) or locally (applied to a single chunk). Global options are useful for enforcing consistent defaults across a report, while local options let you override those defaults when needed. Quarto preserves this distinction, but the syntax shifts slightly.
+
+| Scope   | R Markdown Syntax | Quarto Syntax |
+|---------|-------------------|---------------|
+| **Global** (all chunks) | In a setup chunk:<br>`knitr::opts_chunk$set(echo = FALSE, warning = FALSE)` | Same call in a setup chunk:<br>`knitr::opts_chunk$set(echo = FALSE, warning = FALSE)` |
+| **Local** (single chunk) | ```{r my-chunk, echo=FALSE, warning=FALSE}` | ```{r my-chunk}`<br>`#| echo: false`<br>`#| warning: false` |
+
+
+#### Global R Markdown
+
+::: {.callout-tip #global-rmd-r-setup-callout}
+````md
+\```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+\```
+````
 :::
+
+#### Global Quarto
+
+::: {.callout-tip #global-qmd-r-setup-callout}
+````md
+\```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+\```
+````
+:::
+
+#### Local R Markdown
+
+::: {.callout-tip #local-rmd-r-setup-callout}
+````md
+\```{r summary, echo=TRUE}
+summary(mtcars)
+\```
+````
+:::
+
+#### Local Quarto
+
+::: {.callout-tip #local-qmd-r-setup-callout}
+````md
+\```{r summary}
+#| echo: true
+summary(mtcars)
+\```
+````
+:::
+
+## Callout Blocks in Quarto
+
+Quarto supports several types of callout blocks to highlight information. These are built‑in and require no extensions.
+
+### Basic Syntax
+
+Callouts use the `:::` fence with a class. For example:
+
+::: {.callout-note}
+### Note
+This is a note callout.
+:::
+
+### Types of Callouts
+
+Below are examples of the main callout types. Each shows the source code and the rendered output.
+
+#### Note - General Information
+
+````md
+::: {.callout-note}
+### Note
+This is a note callout.
+:::
+````
+
+:::{.callout-note}
+### Note
+This is a note callout.
+:::
+
+#### Tip - Helpful Hints
+
+````md
+::: {.callout-tip}
+### Tip
+This is a tip callout.
+:::
+````
+
+::: {.callout-tip}
+### Tip
+This is a tip callout.
+:::
+
+#### Warning - Advice About Serious Issues
+
+````md
+::: {.callout-warning}
+### Warning
+This is a warning callout.
+:::
+````
+
+::: {.callout-warning}
+### Warning
+This is a warning callout.
+:::
+
+#### Caution - Cautionary Advice About Potential Problems
+
+````md
+::: {.callout-caution}
+### Caution
+This is a caution callout.
+:::
+````
+
+::: {.callout-caution}
+### Caution
+This is a caution callout.
+:::
+
+#### Important - Critical Information
+
+````md
+::: {.callout-important}
+### Important
+This is an important callout.
+:::
+````
+
+::: {.callout-important}
+### Important
+This is an important callout.
+:::
+
+Overall, note that callouts should be used for concise highlights. Do not place long lines of code in callout boxes because they do not break across pages by default.
+
+````md
+::: {#tip-cross-reference-example .callout-tip}
+## Cross-Referencing a Tip
+
+Add an ID starting with `#tip-` to reference a tip.
+:::
+
+See @tip-cross-reference-example...
+````
+
+This renders as:
+
+::: {#tip-cross-reference-example .callout-tip}
+## Cross-Referencing a Tip
+
+Add an ID starting with `#tip-` to reference a tip.
+:::
+
+See @tip-cross-reference-example...
+
+Each callout type has a specific prefix for this purpose.
+
+| Callout Type | Prefix |
+|--------------|--------|
+| note         | #nte-  |
+| tip          | #tip-  |
+| warning      | #wrn-  |
+| important    | #imp-  |
+| caution      | #cau-  |
+
+
+### Cross-Referencing Callouts
+
+To cross-reference a callout, add an ID attribute starting with the appropriate callout prefix. This allows one to reference a callout using the usual @ syntax.
+
+### Customization
+
+- Titles can be added with an `title="..."` attribute to override the heading.
+- Callouts can contain text, code blocks, tables, or inline icons.
+- Icons and colors vary by type. 
+
+### Callout Appearance Styles
+
+Quarto supports three built‑in styles for callouts:
+
+- **default** – full styling with border, background, and icon  
+- **simple** – lighter styling with reduced border and background  
+- **minimal** – text‑only, no border or background
+
+#### Local (Per Callout)
+
+You can set the style as an attribute on a single block:
+
+````md
+::: {.callout-tip appearance="default"}
+### Default Tip
+This callout uses the default style.
+:::
+````
+::: {.callout-tip appearance="default"}
+### Default Tip
+This callout uses the default style.
+:::
+
+````md
+::: {.callout-tip appearance="simple"}
+### Simple Tip
+This callout uses the simple style.
+:::
+````
+
+::: {.callout-tip appearance="simple"}
+### Simple Tip
+This callout uses the simple style.
+:::
+
+````md
+::: {.callout-tip appearance="minimal"}
+### Minimal Tip
+This callout uses the minimal style.
+:::
+````
+
+::: {.callout-tip appearance="minimal"}
+### Minimal Tip
+This callout uses the minimal style.
+:::
+
+#### Global (All Callouts)
+
+To apply a style to all callouts in a document, set the option in the YAML front matter:
+
+````md
+```yaml
+format:
+  html:
+    callout-appearance: simple
+  pdf:
+    callout-appearance: minimal
+```
+````
+### Icons in Callouts
+
+By default, callouts include an icon. You can disable icons globally or locally.
+
+#### Local (Per Callout)
+
+Add icon=false to the block attributes:
+
+````md
+::: {.callout-note icon=false}
+### Note Without Icon
+This callout has no icon.
+:::
+````
+
+#### Global (All Callouts)
+
+Set the option in the YAML front matter:
+
+````md
+---
+format:
+  html:
+    callout-icon: false
+  pdf:
+    callout-icon: false
+---
+````
+
+#### Enhancing Callouts With Additional Icons
+
+Callouts can be enhanced with icons for emphasis. For example, you may insert Font Awesome icons inline to visually distinguish tips, warnings, or highlights. See the [Font Awesome section](#font-awesome) later in this guide for detailed instructions on customizing icons (color, size, alignment) in both PDF and HTML outputs.
+
+## Package Compatibility Notes
+
+### **Bookdown Features**
+
+  - Quarto subsumes bookdown features by natively supporting multi-file books, cross-references, citations, and output formats without requiring the bookdown package.
+  - Quarto projects use a unified YAML project file (`_quarto.yml`) to define book structure, replacing bookdown's `_bookdown.yml`.
+  - Quarto supports child documents and parameterized reports similarly to bookdown but with enhanced syntax and cross-language support.
+  - Quarto's native support for extensions and filters replaces many bookdown-specific features, providing more flexibility and maintainability.
+
+### **Additional common package dependencies**
+  - TBD
+
+## Project Structures
+
+### Parent/Child Document Model
+
+- Quarto supports `include:` and `import:` directives, which means that our child ETL documents may still be source.
+
+### Parameters for Quarterly vs Annual Reports
+
+### Conditional Child Docs
+
+#### Project Configuration File
+
+::: {.callout-tip #yml-file-pattern-callout title="`_quarto.yml`"}
+````md
+```yaml
+project:
+  type: book
+
+book:
+  title: "YERE Program Report"
+  chapters:
+    - index.qmd
+    - 01-YERE-Program-Periodic-Report.qmd
+```
+````
+:::
+
+#### Front Matter and Setup
+
+::: {.callout-tip #index-rmd-pattern-callout title="`index.Qmd`"}
+````md
+```yaml
+---
+title: "YERE Program Report"
+subtitle: "Community-Based Access to Care"
+params:
+  start_date: !expr lubridate::ymd("2025-04-01")
+  end_date: !expr lubridate::ymd("2025-06-30")
+  hospital_system: "SSM"
+---
+```
+````
+:::
+
+#### R Setup Chunk
+
+::: {.callout-tip #yere-r-setup-example-pattern-callout title="R Set Up Chunk"}
+````md
+```{r r-setup}
+#| include: FALSE
+#| eval: FALSE
+
+time_difference <- params$end_date - params$start_date
+
+if (time_difference < 364) {
+  report_type <- "Quarterly"
+} else {
+  report_type <- "Annual"
+}
+
+# Define evaluation flags
+eval_qtr <- (report_type == "Quarterly")
+eval_annual <- (report_type == "Annual")
+eval_general <- TRUE
+
+# Fiscal period string
+fiscal_period <- ifelse(report_type == "Quarterly", "quarters", "years")
+```
+````
+:::
+
+#### Parent File
+
+::: {.callout-tip #yere-parent-file-example-pattern-callout title="01-YERE-Program-Periodic-Report.qmd"}
+```md
+# YERE Program Report
+```
+````{r, eval=FALSE}
+```{r}
+#| label: yere-section-geography
+#| child: "Sections/YERE-Section-Geography.qmd"
+#| eval: eval_general
+```
+
+```{r}
+#| label: yere-section-quarterly
+#| child: "Sections/YERE-Section-Quarterly.qmd"
+#| eval: eval_annual
+```
+````
+:::
+
+
+### Multi-File Book Projects (e.g., YERE)
+
+### Example YAML Setups
+
+## Tables
+
+We have used the kableExtra package to format tables in our report projects because kableExtra excels at implementing LaTeX features. The good news is that kableExtra works in Quarto just as it did in R Markdown projects, since Quarto still uses knitr for R execution. However, kableExtra tend to be fragile when rendering to Word .docx files, and the styling tends to be lost. This is where the flextable package offers some benefit because flextable was written to support Word output. The good news is that we don't have to choose between the two. Instead, we can adopt a hybrid strategy for table rendering: conditionally use kableExtra for PDF and flextable for Word output.
+
+### kableExtra and flextable Function Cross-Walk
+
+| Task / Feature        | kableExtra (PDF/HTML)                          | flextable (Word/PPT)                       |
+|-----------------------|------------------------------------------------|--------------------------------------------|
+| Basic table           | `kable(df)`                                    | `flextable(df)`                            |
+| Add header row        | `add_header_above()`                           | `add_header_row()`                         |
+| Bold header row       | `row_spec(0, bold=TRUE)`                       | `bold(part="header")`                      |
+| Last row styling      | `row_spec(nrow, bold=TRUE, bg="#2c7fb8")`      | `bg(i=nrow, bg="#2c7fb8"); color(i=nrow, color="white")`                      |
+| Group cells           | `collapse_rows(columns=1)`                     | `merge_v(j=1)`                             |
+| Style header          | `kable_styling(latex_options="striped")`       | `theme_vanilla()` or `bold(part="header")` |
+| Cell background color | `cell_spec(..., background="lightblue")`       | `bg(i=1, j=1, bg="lightblue")`             |
+| Column width          | `column_spec(2, width="5cm")`                  | `width(j=2, width=2)`                      |
+| Footnotes             | `footnote(general="Note...")`                  | `add_footer_lines("Note...")`              |
+| Alignment             | `align="c"` in `kable()`                       | `align(j=2, align="center")`               |
+| Caption               | `caption=` in `kable()`                        | `flextable::set_caption()`               |
+
+### Conditional Routing Example
+
+Because kableExtra and flextable are used to format and style tables, the data preparation steps may remain the same. Once data has been transformed for use in a table and assigned to a tibble, we would then pass the object to a function that 
+
+````{r, eval=FALSE}
+```r
+df <- data.frame(
+  Name = c("Alice", "Bob"),
+  Score = c(95, 88)
+)
+
+if (knitr::is_latex_output()) {
+  # PDF path
+  df %>%
+    knitr::kable("latex", booktabs = TRUE) %>%
+    kableExtra::kable_styling(latex_options = "striped")
+} else if (knitr::is_html_output()) {
+  # HTML path
+  df %>%
+    knitr::kable("html") %>%
+    kableExtra::kable_styling(full_width = FALSE)
+} else if (knitr::is_word_output()) {
+  # Word path
+  flextable::flextable(df) %>%
+    flextable::theme_vanilla()
+}
+```
+````
+
+- Conditional routing example chunk
+- Helper function template (like make_nested_header_table())
+- Notes on stakeholder customization (n + % columns, narrative fallbacks)
+- Icons in PDF vs Word outputs
+
+### Table Toolkit
+
+**Nested Table Header Example**
+
+An illustration of code that might be adopted to conditionally pipe tables requiring nested headers follows:
+
+````{r, eval=FALSE}
+```{r make-nested-header-table-template}
+#| echo: false
+#| warning: false
+#| eval: false
+
+make_nested_header_table <- function(df, col_labels, caption_text) {
+  if (knitr::is_latex_output()) {
+    df %>%
+      knitr::kable(
+        caption = caption_text,
+        booktabs = TRUE,
+        escape = FALSE,
+        format.args = list(big.mark = ","),
+        linesep = "",
+        col.names = linebreak(col_labels, align = "c"),
+        align = c("l", rep("c", ncol(df) - 1))
+      ) %>%
+      collapse_rows(columns = 1, latex_hline = "major", valign = "middle") %>%
+      kableExtra::kable_styling(latex_options = c("HOLD_position", "scale_down")) %>%
+      row_spec(0, bold = TRUE) %>%
+      row_spec(nrow(df), bold = TRUE, color = "white", background = "#2c7fb8") %>%
+      add_header_above(
+        c(" " = 2, "Two Week" = 2, "Thirty Day" = 2, "Three Month" = 2, "Six Month" = 2),
+        bold = TRUE
+      )
+  } else if (knitr::is_word_output()) {
+    flextable::flextable(df) %>%
+      flextable::set_header_labels(.labels = col_labels) %>%
+      flextable::add_header_row(
+        values = c("", "Two Week", "Thirty Day", "Three Month", "Six Month"),
+        colwidths = c(2, 2, 2, 2, 2)
+      ) %>%
+      flextable::bold(part = "header") %>%
+      flextable::bg(i = nrow(df), bg = "#2c7fb8") %>%
+      flextable::color(i = nrow(df), color = "white") %>%
+      flextable::autofit() %>%
+      flextable::set_caption(caption_text)
+  }
+}
+```
+````
+
+
+The code to use this in a program report chunk:
+
+::: {.callout-tip #nested-header-table-application-pattern-callout}
+````{r, eval=FALSE}
+```{r make-nested-header-table-application}
+#| echo: false
+#| warning: false
+#| eval: false
+
+make_nested_header_table(
+  epicc_tbl_agency_eligible_part_three_fps,
+  colnames_agency_eligible_part_three_fps_string,
+  paste0(
+    "Client Program Participation Over Time by Agency, ",
+    current_reporting_fiscal_period
+    )
+  )
+```
+````
+:::
+
+## Output Formats
+
+- Rendering to PDF and Word simultaneously
+- Critic markup for PDF review
+- Limitations of Word output (icons, LaTeX features)
+
+## Migration Guidance
+
+- Converting .Rmd → .qmd
+- Updating chunk options
+- Handling parameters and child documents
+- Strategy for phased adoption
 
 In the next section, we’ll look at look at examples of specific extensions that are potentially relevant for our reporting needs.
 
 ---
 
-# Quarto Extensions
+## Quarto Extensions
 
 ## Critic Markup
 
 The Critic Markup extension offers specialized, Markdown-based syntax to denote edits and revisions when submitting report drafts for review by internal agency stakeholders. The syntax is quick and easy to add and remove from the document. This section shows the Critic Markup syntax verbatim, alongside rendered examples.
 
 ::: {.callout-note}
-### Tip
+### Note
 Although the Critic Markup extension installs into `quarto-ext/critic-markup/`, you must list `critic-markup` (*without `.lua`) under `filters:` and not under `extensions:` as one might expect. Quarto reads the extension's `_extension.yml` file and registers the `Lua` filter automatically, which rewrites the syntax into LaTeX macros (e.g., highlighting, colored text for additions and deletions). In HTML output, the Critic Markup extension uses CSS/JS for styling, so listing the extension as `mloubout/critic-markup` under `extensions:` would result in no styling being applied to the PDF.
 :::
 
@@ -138,7 +683,7 @@ Critic Markup allows for diff-style markup by enabling us to wrap text to signif
 Quarto may also be extended to include the ability to add scalable, vector-based icons to enhance the text. The vast majority of icon sets are designed for use exclusively by web developers using HTML, which means that the extensions require quite a bit of work to configure them for use with LaTeX. Fortunately, a Font Awesome extension is available to allow us to use the Font Awesome (FA) library of icons in PDF reports.
 
 ::: {.callout-note}
-### Tip
+### Note
 Currently, the Font Awesome extension is configured to work with Font Awesome 5 free icons only when compiling to PDF and to otherwise use Font Awesome 6 icons when compiling to HTML. However, because Pandoc scans for both Font Awesome 5 and 6, the result is that compiling to PDF fails unless the extension is modified to force using FA 5 exclusively. I have modified the `fontawesome.lua` file to do this. Issues in the repository indicate that the developers plan to add LaTeX support for Font Awesome 6 and 7 libraries in the future. We can fork the repo to ensure that we are aware of updates as they are merged with the main branch.
 :::
 
@@ -316,3 +861,10 @@ A number of icons come in multiple versions as this non-exhaustive list of house
 - House Filled With Door {{< bi house-door-fill size=2 >}}
 - House With Heart {{< bi house-heart size=2 >}}
 - Houses {{< bi houses size=2 >}}
+
+---
+
+## Appendix
+
+- Reference snippets (global chunk options, table toolkit)
+- Links to Quarto documentation
