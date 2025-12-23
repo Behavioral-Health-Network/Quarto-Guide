@@ -69,14 +69,27 @@ tlmgr update --self --all
 ```
 
 5. **Verify PATH Setup**
-  - Confirm `quarto --version`, `R --version`, and `python --version` all work in your terminal.
-  - If any command fails, it means the software is not registered on your PATH. Re‑run the installer or update your PATH environment variable so the executables are discoverable. Guidance on how to do this can be available.
+  - Confirm `quarto --version`, `R.exe --version`, and `python --version` all work in your terminal.
+  - If any command fails, it means the software is not registered on your PATH. Re‑run the installer or update your PATH environment variable so the executables are discoverable. Consult the following steps to add PATH entries that may be missing.
+
+### Required PATH Entries
+
+::: {.callout-tip}
+# Steps to Add PATH Entries
+1. Press **Win + R**, type `sysdm.cpl`, press Enter.
+2. Go to **Advanced → Environment Variables**.
+3. Under **System variables**, select `Path` → **Edit**.
+4. Add the path: `C:\Users\<username>\AppData\Local\Programs\Quarto\bin`.
+5. Always move this entry above the Microsoft Store stub path:
+`C:\Users\<username>\AppData\Local\Microsoft\WindowsApps`
+6. Save and restart VS Code or your terminal. You may also need to restart your computer.
+:::
 
 6. **Install Quarto Extensions**
   - Quarto Extensions are managed locally at the project level, so it will be necessary to add relevant extensions to each Quarto project folder rather than relying on a global installation. The reason for this is the need to ensure **reproducibility** and **portability** when projects are under version control. Bundling extensions with the project allows other users to confidently fork and clone projects without fear that they will not compile because the user lacks the specific version of the extension source code used as the project was developed (and maintained).
   - Therefore, projects may already have an `_extensions` folder with the required files. In that case, it may not be necessary to install extensions.
   - Adding new extensions to a project requires opening a terminal.
-  - Identify and copy the file path to your projects root folder, which is the main directory that contains all of your project's files and subfolders, including the `.qmd` file.
+  - Identify and copy the file path to your project's root folder, which is the main directory that contains all of your project's files and subfolders, including the `.qmd` file.
   - In a terminal, type `cd` followed by the file path. For readability, the following is an example file path. You should replace it with the actual path on your system.
 
 ```{.Powershell}
@@ -89,6 +102,7 @@ cd C:\Users\bwing\OneDrive - ...\Documents\Repos - Quarto\Quarto Guide
 quarto install repo-owner/repo-name
 ```
   
+  - `repo-owner/repo-name` is just a placeholder here. Be sure to substitute the actual name of a repo and the repository owner.
   - This will automatically create an `_extensions` folder if one does not already exist. Extensions are installed into a `quarto-ext/` folder at the project root. Quarto creates this folder automatically if it doesn't exist. In certain cases, a repository's `README.md` will instruct you to use `add` instead of `install`. Both will work, but `install` is the current convention because it clearly indicates that the operation is installing an extension.
 
 ---
@@ -97,7 +111,7 @@ quarto install repo-owner/repo-name
 
 ### Chunk Options in R Markdown and Quarto Documents
 
-Quarto moves chunk options out of the header and into the body of the chunk using YAML‑style comments (#|). This design makes options more consistent across languages and easier to read, especially when chunks get complex. The chunk label itself is unchanged, but execution and visibility options (eval, echo, include) are now written line‑by‑line inside the chunk.
+Quarto moves chunk options out of the header and into the body of the chunk using YAML‑style comments (#|). This design makes options more consistent across languages and easier to read, especially when chunks get complex. Chunk label, execution, and visibility options (label, eval, echo, include) are now written line‑by‑line inside the chunk. Following is a cross-walk table to illustrate some commonly used options:
 
 | Purpose                 | R Markdown Syntax (chunk header) | Quarto Syntax (inside chunk)|
 |-------------------------|----------------------------------|-----------------------------|
